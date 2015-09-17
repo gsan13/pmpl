@@ -8,4 +8,13 @@ def home_page(request):
 		return redirect('/')
 
 	items = Item.objects.all()
-	return render(request, 'home.html', {'items': items})
+	total = Item.objects.count()
+	if total > 4:
+		comment = 'oh tidak'
+	elif total == 0:
+		comment = 'yey, waktunya berlibur'
+	else:
+		comment = 'sibuk tapi santai'
+
+	return render(request, 'home.html', {'items': items, 'comment':comment})
+

@@ -15,6 +15,10 @@ class NewVisitorTest(unittest.TestCase):
 		table = self.browser.find_element_by_id('id_list_table')
 		rows = table.find_elements_by_tag_name('tr')
 		self.assertIn(row_text, [row.text for row in rows])
+	
+	def check_for_comment(self, comment_text):
+		comment = self.browser.find_element_by_id('id_comment')
+		self.assertTrue(comment_text, comment)
 
 
 	def test_can_start_a_list_and_retrieve_it_later(self):
@@ -23,6 +27,8 @@ class NewVisitorTest(unittest.TestCase):
 		self.assertIn('To-Do lists', self.browser.title)
 		header_text = self.browser.find_element_by_tag_name('h1').text
 		self.assertIn('To-Do', header_text)
+		
+		self.check_for_comment('yey, waktunya berlibur')
 
 		inputbox = self.browser.find_element_by_id('id_new_item')
 		self.assertEqual(
@@ -34,6 +40,8 @@ class NewVisitorTest(unittest.TestCase):
 		inputbox.send_keys(Keys.ENTER)
 		self.check_for_row_in_list_table('1: Buy peacock feathers')
 		
+		self.check_for_comment('sibuk tapi santai')
+
 		inputbox = self.browser.find_element_by_id('id_new_item')
 		inputbox.send_keys('Use peacock feathers to make a fly')
 		inputbox.send_keys(Keys.ENTER)
@@ -41,6 +49,22 @@ class NewVisitorTest(unittest.TestCase):
 		self.check_for_row_in_list_table('1: Buy peacock feathers')
 		self.check_for_row_in_list_table('2: Use peacock feathers to make a fly')
 
+		self.check_for_comment('sibuk tapi santai')
+
+		inputbox=self.browser.find_element_by_id('id_new_item')
+		inputbox.send_keys('to-do 3')
+		inputbox.send_keys(Keys.ENTER)
+
+		inputbox=self.browser.find_element_by_id('id_new_item')
+		inputbox.send_keys('to-do 4')
+		inputbox.send_keys(Keys.ENTER)
+		
+		inputbox=self.browser.find_element_by_id('id_new_item')
+		inputbox.send_keys('to-do 5')
+		inputbox.send_keys(Keys.ENTER)
+
+		self.check_for_comment('oh tidak')
+		
 		self.fail('Finish the test!')
 
 if __name__ == '__main__':

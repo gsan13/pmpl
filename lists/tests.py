@@ -12,11 +12,11 @@ class HomePageTest(TestCase):
 		found = resolve('/')
 		self.assertEqual(found.func, home_page)
 
-	def test_home_page_returns_correct_html(self):
-		request = HttpRequest()
-		response = home_page(request)
-		expected_html = render_to_string('home.html')
-		self.assertEqual(response.content.decode(), expected_html)
+	#def test_home_page_returns_correct_html(self):
+		#request = HttpRequest()
+		#response = home_page(request)
+		#expected_html = render_to_string('home.html')
+		#self.assertEqual(response.content.decode(), expected_html)
 
 	def test_home_page_can_save_a_POST_request(self):
 		request = HttpRequest()
@@ -39,12 +39,6 @@ class HomePageTest(TestCase):
 		self.assertEqual(response.status_code, 302)
 		self.assertEqual(response['location'],'/')
 
-		#self.assertIn('A new list item', response.content.decode())
-		#expected_html = render_to_string(
-		#	'home.html',
-		#	{'new_item_text': 'A new list item'}
-		#)
-		#self.assertEqual(response.content.decode(), expected_html)
 
 	def test_home_page_only_saves_items_when_necessary(self):
 		request = HttpRequest()
@@ -60,6 +54,36 @@ class HomePageTest(TestCase):
 
 		self.assertIn('Itemey 1', response.content.decode())
 		self.assertIn('Itemey 2', response.content.decode())
+	
+	def test_no_item(self):
+		request = HttpRequest()
+		response = home_page(request)
+		
+		self.assertEqual(Item.objects.count(),0)
+		self.assertIn("yey, waktunya berlibur", response.content.decode())
+	def test_one_to_four_item(self):
+		Item.objects.create(text='Item 1')
+		Item.objects.create(text='Item 2')
+		Item.objects.create(text='Item 3')
+		
+		request = HttpRequest()
+		response = home_page(request)
+		
+		self.assertLess(Item.objects.count(), 5)
+		self.assertIn("sibuk tapi santai", response.content.decode())
+	
+	def test_more_than_four_item(self):
+		Item.objects.create(text='Item 1')
+		Item.objects.create(text='Item 2')
+		Item.objects.create(text='Item 3')
+		Item.objects.create(text='Item 4')
+		Item.objects.create(text='Item 5')
+		
+		request = HttpRequest()
+		response = home_page(request)
+
+		self.assertGreaterEqual(Item.objects.count(), 5)
+		self.assertIn("oh tidak", response.content.decode())
 
 
 class ItemModelTest(TestCase):
