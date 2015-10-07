@@ -3,10 +3,6 @@ from lists.models import Item
 
 
 def home_page(request):
-	if request.method =='POST':
-		Item.objects.create(text=request.POST['item_text'])
-		return redirect('/lists/the-only-list-in-the-world/')
-	
 	total = Item.objects.count()
 	if total > 4:
 		comment = 'oh tidak'
@@ -27,7 +23,9 @@ def view_list(request):
 	else:
 		comment = 'sibuk tapi santai'
 	return render(request, 'list.html', {'items' : items, 'comment':comment})
-	
-	
+
+def new_list(request):
+	Item.objects.create(text=request.POST['item_text'])
+	return redirect('/lists/the-only-list-in-the-world/')
 	
 	
