@@ -1,10 +1,9 @@
 from django.template.loader import render_to_string
-from django.core.urlresolvers import resolve
 from django.test import TestCase
-from django.http import HttpRequest
 from lists.views import home_page
-from lists.models import Item
-
+from lists.models import Item,List
+from django.core.urlresolvers import resolve
+from django.http import HttpRequest
 
 # Create your tests here.
 
@@ -51,9 +50,10 @@ class HomePageTest(TestCase):
 		self.assertEqual(Item.objects.count(),0)
 		self.assertIn("yey, waktunya berlibur", response.content.decode())
 	def test_one_to_four_item(self):
-		Item.objects.create(text='Item 1')
-		Item.objects.create(text='Item 2')
-		Item.objects.create(text='Item 3')
+		list_ = List.objects.create()
+		Item.objects.create(text='Item 1', list=list_)
+		Item.objects.create(text='Item 2', list=list_)
+		Item.objects.create(text='Item 3', list=list_)
 		
 		request = HttpRequest()
 		response = home_page(request)
@@ -62,11 +62,12 @@ class HomePageTest(TestCase):
 		self.assertIn("sibuk tapi santai", response.content.decode())
 	
 	def test_more_than_four_item(self):
-		Item.objects.create(text='Item 1')
-		Item.objects.create(text='Item 2')
-		Item.objects.create(text='Item 3')
-		Item.objects.create(text='Item 4')
-		Item.objects.create(text='Item 5')
+		list_ = List.objects.create()
+		Item.objects.create(text='Item 1', list=list_)
+		Item.objects.create(text='Item 2', list=list_)
+		Item.objects.create(text='Item 3', list=list_)
+		Item.objects.create(text='Item 4', list=list_)
+		Item.objects.create(text='Item 5', list=list_)
 		
 		request = HttpRequest()
 		response = home_page(request)
@@ -75,15 +76,23 @@ class HomePageTest(TestCase):
 		self.assertIn("oh tidak", response.content.decode())
 
 
-class ItemModelTest(TestCase):
+class ListAndItemModelTest(TestCase):
 	def test_saving_and_retrieving_items(self):
+		list_ = List()
+		list_.save()
+
 		first_item = Item()
 		first_item.text = 'The first (ever) list item'
+		first_item.list = list_
 		first_item.save()
 
 		second_item = Item()
 		second_item.text = 'Item the second'
+		second_item.list = list_
 		second_item.save()
+
+		saved_list = List.objects.first()
+		self.assertEqual(saved_list, list_)
 
 		saved_items = Item.objects.all()
 		self.assertEqual(saved_items.count(), 2)
@@ -91,12 +100,15 @@ class ItemModelTest(TestCase):
 		first_saved_item = saved_items[0]
 		second_saved_item = saved_items[1]
 		self.assertEqual(first_saved_item.text, 'The first (ever) list item')
+		self.assertEqual(first_saved_item.list, list_)
 		self.assertEqual(second_saved_item.text, 'Item the second')
+		self.assertEqual(second_saved_item.list, list_)
 
 class ListViewTest(TestCase):
 	def test_displays_all_items(self):
-		Item.objects.create(text='Itemey 1')
-		Item.objects.create(text='Itemey 2')
+		list_ = List.objects.create()
+		Item.objects.create(text='Itemey 1', list=list_)
+		Item.objects.create(text='Itemey 2', list=list_)
 
 		response = self.client.get('/lists/the-only-list-in-the-world/')
 
